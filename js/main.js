@@ -313,6 +313,78 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
   }
 }
 
+function minimaxPlain(game, depth, isMaximizingPlayer, sum, color) {
+  positionCount++;
+  var children = game.ugly_moves({ verbose: true });
+
+  // Sort moves randomly, so the same move isn't always picked on ties
+  children.sort(function (a, b) {
+    return 0.5 - Math.random();
+  });
+
+  var currMove;
+  // Maximum depth exceeded or node is a terminal node (no children)
+  if (depth === 0 || children.length === 0) {
+    return [null, sum];
+  }
+
+  // Find maximum/minimum from list of 'children' (possible moves)
+  var bestValue = isMaximizingPlayer ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+  var bestMove;
+
+  for (var i = 0; i < children.length; i++) {
+    currMove = children[i];
+
+    // Note: in our case, the 'children' are simply modified game states
+    var currPrettyMove = game.ugly_move(currMove);
+    var newSum = evaluateBoard(game, currPrettyMove, sum, color);
+    var [_, childValue] = minimaxPlain(
+      game,
+      depth - 1,
+      !isMaximizingPlayer,
+      newSum,
+      color
+    );
+
+    game.undo();
+
+    if ((isMaximizingPlayer && childValue > bestValue) ||
+        (!isMaximizingPlayer && childValue < bestValue)) {
+      bestValue = childValue;
+      bestMove = currPrettyMove;
+    }
+  }
+
+  return [bestMove, bestValue];
+}
+
+var useAlphaBetaPruning = true; // Set to true to use alpha-beta pruning, false to use plain minimax
+
+function getBestMove(game, color, currSum) {
+  positionCount = 0;
+
+  if (color === 'b') {
+    var depth = parseInt($('#search-depth').find(':selected').text());
+  } else {
+    var depth = parseInt($('#search-depth-white').find(':selected').text());
+  }
+
+  var d = new Date().getTime();
+  var [bestMove, bestMoveValue] = useAlphaBetaPruning ?
+    minimax(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color) :
+    minimaxPlain(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color);
+  var d2 = new Date().getTime();
+  var moveTime = d2 - d;
+  var positionsPerS = (positionCount * 1000) / moveTime;
+
+  $('#position-count').text(positionCount);
+  $('#time').text(moveTime / 1000);
+  $('#positions-per-s').text(Math.round(positionsPerS));
+
+  return [bestMove, bestMoveValue];
+}
+
+
 function checkStatus(color) {
   if (game.in_checkmate()) {
     $('#status').html(`<b>Checkmate!</b> Oops, <b>${color}</b> lost.`);
