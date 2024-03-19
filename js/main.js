@@ -229,12 +229,7 @@ function evaluateBoard(game, move, prevSum, color) {
 }
 
 /*
- * Performs the minimax algorithm to choose the best move: https://en.wikipedia.org/wiki/Minimax (pseudocode provided)
- * Recursively explores all possible moves up to a given depth, and evaluates the game board at the leaves.
- *
- * Basic idea: maximize the minimum value of the position resulting from the opponent's possible following moves.
- * Optimization: alpha-beta pruning: https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning (pseudocode provided)
- *
+ * Performs the minimax algorithm with Alpha-Beta Optimization:
  * Inputs:
  *  - game:                 the game object.
  *  - depth:                the depth of the recursive tree of all possible moves (i.e. height limit).
@@ -313,6 +308,8 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
   }
 }
 
+// performs the same minimax algorithm without alpha beta pruning
+
 function minimaxPlain(game, depth, isMaximizingPlayer, sum, color) {
   positionCount++;
   var children = game.ugly_moves({ verbose: true });
@@ -358,7 +355,7 @@ function minimaxPlain(game, depth, isMaximizingPlayer, sum, color) {
   return [bestMove, bestValue];
 }
 
-// var useAlphaBetaPruning = true; // Set to true to use alpha-beta pruning, false to use plain minimax
+//var useAlphaBetaPruning = true; // Set to true to use alpha-beta pruning, false to use plain minimax
 
 // function getBestMove(game, color, currSum) {
 //   positionCount = 0;
@@ -369,13 +366,13 @@ function minimaxPlain(game, depth, isMaximizingPlayer, sum, color) {
 //     var depth = parseInt($('#search-depth-white').find(':selected').text());
 //   }
 
-//   var d = new Date().getTime();
-//   var [bestMove, bestMoveValue] = useAlphaBetaPruning ?
-//     minimax(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color) :
-//     minimaxPlain(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color);
-//   var d2 = new Date().getTime();
-//   var moveTime = d2 - d;
-//   var positionsPerS = (positionCount * 1000) / moveTime;
+// var d = new Date().getTime();
+// var [bestMove, bestMoveValue] = useAlphaBetaPruning ?
+//   minimax(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color) :
+//   minimaxPlain(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color);
+// var d2 = new Date().getTime();
+// var moveTime = d2 - d;
+// var positionsPerS = (positionCount * 1000) / moveTime;
 
 //   $('#position-count').text(positionCount);
 //   $('#time').text(moveTime / 1000);
@@ -426,7 +423,7 @@ function updateAdvantage() {
 /*
  * Calculates the best legal move for the given color.
  */
-function getBestMove(game, color, currSum) {
+function getBestMove(game, color, currSum, useAlphaBetaPruning = true) {
   positionCount = 0;
 
   if (color === 'b') {
@@ -436,18 +433,26 @@ function getBestMove(game, color, currSum) {
   }
 
   var d = new Date().getTime();
-  var [bestMove, bestMoveValue] = minimax(
-    game,
-    depth,
-    Number.NEGATIVE_INFINITY,
-    Number.POSITIVE_INFINITY,
-    true,
-    currSum,
-    color
-  );
+  var [bestMove, bestMoveValue] = useAlphaBetaPruning ?
+    minimax(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color) :
+    minimaxPlain(game, depth, true, currSum, color);
   var d2 = new Date().getTime();
   var moveTime = d2 - d;
   var positionsPerS = (positionCount * 1000) / moveTime;
+
+  // var d = new Date().getTime();
+  // var [bestMove, bestMoveValue] = minimax(
+  //   game,
+  //   depth,
+  //   Number.NEGATIVE_INFINITY,
+  //   Number.POSITIVE_INFINITY,
+  //   true,
+  //   currSum,
+  //   color
+  // );
+  // var d2 = new Date().getTime();
+  // var moveTime = d2 - d;
+  // var positionsPerS = (positionCount * 1000) / moveTime;
 
   $('#position-count').text(positionCount);
   $('#time').text(moveTime / 1000);
