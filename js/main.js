@@ -572,6 +572,10 @@ $('#compVsCompBtn').on('click', function () {
   reset();
   compVsComp('w');
 });
+$('#compVsCompBtn2').on('click', function () {
+  reset();
+  compVsComp('w');
+});
 $('#resetBtn').on('click', function () {
   reset();
 });
