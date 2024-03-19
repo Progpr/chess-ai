@@ -358,31 +358,31 @@ function minimaxPlain(game, depth, isMaximizingPlayer, sum, color) {
   return [bestMove, bestValue];
 }
 
-var useAlphaBetaPruning = true; // Set to true to use alpha-beta pruning, false to use plain minimax
+// var useAlphaBetaPruning = true; // Set to true to use alpha-beta pruning, false to use plain minimax
 
-function getBestMove(game, color, currSum) {
-  positionCount = 0;
+// function getBestMove(game, color, currSum) {
+//   positionCount = 0;
 
-  if (color === 'b') {
-    var depth = parseInt($('#search-depth').find(':selected').text());
-  } else {
-    var depth = parseInt($('#search-depth-white').find(':selected').text());
-  }
+//   if (color === 'b') {
+//     var depth = parseInt($('#search-depth').find(':selected').text());
+//   } else {
+//     var depth = parseInt($('#search-depth-white').find(':selected').text());
+//   }
 
-  var d = new Date().getTime();
-  var [bestMove, bestMoveValue] = useAlphaBetaPruning ?
-    minimax(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color) :
-    minimaxPlain(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color);
-  var d2 = new Date().getTime();
-  var moveTime = d2 - d;
-  var positionsPerS = (positionCount * 1000) / moveTime;
+//   var d = new Date().getTime();
+//   var [bestMove, bestMoveValue] = useAlphaBetaPruning ?
+//     minimax(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color) :
+//     minimaxPlain(game, depth, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, true, currSum, color);
+//   var d2 = new Date().getTime();
+//   var moveTime = d2 - d;
+//   var positionsPerS = (positionCount * 1000) / moveTime;
 
-  $('#position-count').text(positionCount);
-  $('#time').text(moveTime / 1000);
-  $('#positions-per-s').text(Math.round(positionsPerS));
+//   $('#position-count').text(positionCount);
+//   $('#time').text(moveTime / 1000);
+//   $('#positions-per-s').text(Math.round(positionsPerS));
 
-  return [bestMove, bestMoveValue];
-}
+//   return [bestMove, bestMoveValue];
+// }
 
 
 function checkStatus(color) {
@@ -459,11 +459,11 @@ function getBestMove(game, color, currSum) {
 /*
  * Makes the best legal move for the given color.
  */
-function makeBestMove(color) {
+function makeBestMove(color, useAlphaBetaPruning = true) {
   if (color === 'b') {
-    var move = getBestMove(game, color, globalSum)[0];
+    var move = getBestMove(game, color, globalSum, useAlphaBetaPruning)[0];
   } else {
-    var move = getBestMove(game, color, -globalSum)[0];
+    var move = getBestMove(game, color, -globalSum, useAlphaBetaPruning)[0];
   }
 
   globalSum = evaluateBoard(game, move, globalSum, 'b');
@@ -500,24 +500,24 @@ function makeBestMove(color) {
 }
 
 /*
- * Plays Computer vs. Computer, starting with a given color.
+ * plays Computer vs. Computer, starting with a given color.
  */
-function compVsComp(color) {
+function compVsComp(color, useAlphaBetaPruning = true) {
   if (!checkStatus({ w: 'white', b: 'black' }[color])) {
     timer = window.setTimeout(function () {
-      makeBestMove(color);
+      makeBestMove(color, useAlphaBetaPruning);
       if (color === 'w') {
         color = 'b';
       } else {
         color = 'w';
       }
-      compVsComp(color);
+      compVsComp(color, useAlphaBetaPruning);
     }, 250);
   }
 }
 
 /*
- * Resets the game to its initial state.
+ * resets the game to its initial state.
  */
 function reset() {
   game.reset();
@@ -574,7 +574,7 @@ $('#compVsCompBtn').on('click', function () {
 });
 $('#compVsCompBtn2').on('click', function () {
   reset();
-  compVsComp('w');
+  compVsComp('w', false);
 });
 $('#resetBtn').on('click', function () {
   reset();
