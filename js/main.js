@@ -1,10 +1,3 @@
-/*
- * A simple chess AI, by someone who doesn't know how to play chess.
- * Uses the chessboard.js and chess.js libraries.
- *
- * Copyright (c) 2020 Zhang Zeyu
- */
-
 var STACK_SIZE = 100; // maximum size of undo stack
 
 var board = null;
@@ -33,7 +26,6 @@ board = Chessboard('myBoard', config);
 timer = null;
 
 /*
- * Piece Square Tables, adapted from Sunfish.py:
  * https://github.com/thomasahle/sunfish/blob/master/sunfish.py
  */
 
@@ -544,31 +536,6 @@ function reset() {
 /*
  * Event listeners for various buttons.
  */
-$('#ruyLopezBtn').on('click', function () {
-  reset();
-  game.load(
-    'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1'
-  );
-  board.position(game.fen());
-  window.setTimeout(function () {
-    makeBestMove('b');
-  }, 250);
-});
-$('#italianGameBtn').on('click', function () {
-  reset();
-  game.load(
-    'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 0 1'
-  );
-  board.position(game.fen());
-  window.setTimeout(function () {
-    makeBestMove('b');
-  }, 250);
-});
-$('#sicilianDefenseBtn').on('click', function () {
-  reset();
-  game.load('rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1');
-  board.position(game.fen());
-});
 $('#startBtn').on('click', function () {
   reset();
 });
